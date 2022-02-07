@@ -62,18 +62,19 @@
                 <hr>
                 <h3> Total Pesanan </h3>
                 <hr>
-
+                {%  for item in items %}
                 <div class="cart-row">
 
-                    <div style="flex: 2;"><img class="row-image" src="{% static 'images/placeholder.png' %}" ></div>
-                    <div style="flex: 2;"><p> Produk 1 </p></div>
-                    <div style="flex: 2;"><p> Rp. 200.000,00 </p></div>
-                    <div style="flex: 2;"><p> x2 </p></div>
+                    <div style="flex: 2;"><img class="row-image" src="{{item.product.imageURL}}" ></div>
+                    <div style="flex: 2;"><p> {{item.product.name}} </p></div>
+                    <div style="flex: 2;"><p> Rp. {{item.product.price}} </p></div>
+                    <div style="flex: 2;"><p> x {{item.quantity}} </p></div>
 
                 </div>
+                {% endfor %}
 
-                <h5> Item   : 2 </h5>
-                <h5> Total  : Rp 200.000,00 </h5>
+                <h5> Item   : {{order.get_cart_items}} </h5>
+                <h5> Total  : Rp {{order.get_cart_total|floatformat:0}} </h5>
             </div>
         </div>
     </div>
