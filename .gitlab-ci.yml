@@ -15,5 +15,5 @@ deploy:
   environment:
     name: development
     url: $HEROKU_APP_HOST
-    only:
+  only:
     - master
