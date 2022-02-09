@@ -1,4 +1,8 @@
-from django.shortcuts import render
+from itertools import product
+from multiprocessing import context
+from django.shortcuts import render, redirect
+from .forms import ProductForm
+from django.contrib.auth.forms import UserCreationForm
 from django.http import JsonResponse
 import json
 
@@ -51,6 +55,22 @@ def pembayaran(request):
     context = {'items':items, 'order':order, 'cartItems':cartItems}
     return render(request, 'transaksi/pembayaran.html', context)
 
+def produk(request):
+
+    if request.user.is_authenticated:
+        customer = request.user.customer
+        order, created = Order.objects.get_or_create(customer=customer, complete=False)
+        items =  order.orderitem_set.all()
+        cartItems = order.get_cart_items
+    else:
+        items = []
+        order = {'get_cart_total':0, 'get_cart_items':0}
+        cartItems = order['get_cart_items']
+
+    products    = Product.objects.all()
+    context     = {'products':products, 'cartItems':cartItems}
+    return render(request, 'transaksi/produk.html', context)
+
 def updateItem(request):
     data = json.loads(request.body)
     productId = data['productId']
@@ -76,3 +96,13 @@ def updateItem(request):
         orderItem.delete()
     
     return JsonResponse('Item was added', safe=False)
+
+def createProduct(request):
+    form = ProductForm()
+    if request.method == 'POST':
+        form = ProductForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return redirect('menu')
+    context = {'form':form}
+    return render(request, 'transaksi/product_form.html', context)
