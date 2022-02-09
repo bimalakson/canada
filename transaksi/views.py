@@ -1,10 +1,14 @@
 from itertools import product
 from multiprocessing import context
+from urllib import request
 from django.shortcuts import render, redirect
 from .forms import ProductForm
 from django.contrib.auth.forms import UserCreationForm
+from .models import *
 from django.http import JsonResponse
 import json
+import datetime
+
 
 from .models import *
 
@@ -106,3 +110,22 @@ def createProduct(request):
             return redirect('menu')
     context = {'form':form}
     return render(request, 'transaksi/product_form.html', context)
+
+def processOrder(request):
+	transaction_id = datetime.datetime.now().timestamp()
+	data = json.loads(request.body)
+
+	if request.user.is_authenticated:
+		customer = request.user.customer
+		order, created = Order.objects.get_or_create(customer=customer, complete=False)
+		total = float(data['form']['total'])
+		order.transaction_id = transaction_id
+
+		if total == order.get_cart_total:
+			order.complete = True
+		order.save()
+
+	else:
+		print('User is not logged in')
+
+	return JsonResponse('Payment submitted..', safe=False)
